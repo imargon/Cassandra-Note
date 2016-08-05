@@ -1,0 +1,37 @@
+# http://www.csdn.net/article/2014-10-24/2822278-how-to-bulida-spark-and-cassandra-based-high-performance-data-pipeline
+# http://yikebocai.com/2014/06/cassandra-principle/
+
+1.高可靠性，采用gossip作为集群中结点的通信协议，该协议整个集群中的节点都处于同等地位，没有主从之分，这就使得任一节点的退出都不会导致整个集群失效。
+  Cassandra和HBase都是借鉴了Google BigTable的思想来构建自己的系统，但Cassandra另一重要的创新就是将原本存在于文件共享架构的p2p(peer to peer)引入了NoSQL。
+  P2P的一大特点就是去中心化，集群中的所有节点享有同等地位，这极大避免了单个节点退出而使整个集群不能工作的可能。
+2.高可扩性，非常容易实现添加新的节点到已有集群，操作简单。
+3.任何一个分布式存储系统不可能同时满足一致性(consistency)，可用性(availability)和分区容错性(partition tolerance)。
+  Cassandra是优先保证AP，即可用性和分区容错性。
+4.读写操作高效
+5.结构化存储
+
+Cassandra是一个面向列的数据库，对那些从RDBMS方面转过来的开发人员来说，其学习曲线相对平缓。
+
+Cassandra同时提供了较为友好CQL语言，与SQL语句相似度很高。
+
+6. 维护简单
+二.
+2.1 单表主键查询
+    demo :
+          create table person (
+                               userid text,
+                                fname text,
+                                lname text,
+                                gender int,
+                                age int,
+                                primary key((userid,fname),lname);
+                                ) with clustering order by (lname desc);
+    
+  primary key((userid, fname),lname)的含义：
+              其中(userid,fname)称为组合分区键(composite partition key)
+              lname是聚集列(clustering column)
+              ((userid,fname),lname)一起称为复合主键(composite primary key)
+              通过组合分区键(compsoite key)来使得数据尽可能的均匀分布到各个节点上。
+              
+2.2 单表非主键查询 ，Cassandra目前只能对表中的某一列建立索引，不允许对多列建立联合索引。
+2.3 不支持关联查询，也不支持分组和聚合操作。
